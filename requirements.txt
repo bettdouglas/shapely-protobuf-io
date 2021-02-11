@@ -7,7 +7,7 @@ pluggy==0.13.1
 protobuf==3.14.0
 py==1.10.0
 pyparsing==2.4.7
-pytest==6.2.2
-Shapely==1.7.1
+pytest
+Shapely
 six==1.15.0
 toml==0.10.2
