@@ -1,0 +1,13 @@
+attrs==20.3.0
+grpcio==1.35.0
+grpcio-tools==1.35.0
+iniconfig==1.1.1
+packaging==20.9
+pluggy==0.13.1
+protobuf==3.14.0
+py==1.10.0
+pyparsing==2.4.7
+pytest==6.2.2
+Shapely==1.7.1
+six==1.15.0
+toml==0.10.2
