@@ -1,6 +1,10 @@
 from shapely_grpc_io.shapely_serializer import ShapelyGeometrySerializer
 from shapely_grpc_io.shapely_deserializer import ShapelyPBDeserializer
-
+from shapely_grpc_io.shapely_bp_serializer import ShapelyBPSerializer
+from shapely_grpc_io.shapely_bp_deserializer import ShapelyBetterprotoDeserializer
 
 pb_toshapely_deserializer = ShapelyPBDeserializer()
 shapely_topb_serializer = ShapelyGeometrySerializer()
+
+shapely_betterproto_serializer = ShapelyBPSerializer()
+shapely_betterproto_deserializer = ShapelyBetterprotoDeserializer()
