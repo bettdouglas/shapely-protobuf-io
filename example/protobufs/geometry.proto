@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package geometry;
+
+message Coordinate {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+    bool has_z = 4; //protobuf serialization defaults to 0 for undefined values.
+}
+
+message Geometry {
+    Type type = 1;
+    repeated Coordinate coordinates = 2;
+    repeated Geometry geometries = 3;
+}
+
+enum Type {                                                             
+    POINT = 0;
+    LINESTRING = 1;
+    POLYGON = 2;
+    MULTIPOINT = 3;
+    MULTILINESTRING = 4;
+    MULTIPOLYGON = 5;
+    LINE = 6;
+    TRIANGLE = 7;
+    LINEARRING = 8;
+    GEOMETRYCOLLECTION = 9;
+}
