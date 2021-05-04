@@ -6,7 +6,7 @@ message Coordinate {
     double x = 1;
     double y = 2;
     double z = 3;
-    bool has_z = 4;
+    bool has_z = 4; //protobuf serialization defaults to 0 for undefined values.
 }
 
 message Geometry {

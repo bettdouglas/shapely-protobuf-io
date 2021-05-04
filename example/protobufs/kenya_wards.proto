@@ -1,0 +1,36 @@
+syntax="proto3";
+
+import "geometry.proto";
+
+message Level1Boundary {
+    string id    =   1;
+    string name =   2;
+    geometry.Geometry boundary = 3;
+}
+
+message Level2Boundary {
+    string id    =   1;
+    string name =   2;
+    string adm1name =  3;
+    geometry.Geometry boundary = 4;
+}
+
+message BoundariesRequest {
+    geometry.Geometry bounds = 1;
+}
+
+message Level1BoundariesResponse {
+    repeated Level1Boundary boundaries = 1;
+}
+
+message Level2BoundariesResponse {
+    repeated Level2Boundary boundaries = 1;
+}
+
+
+service AdminBoundariesService {
+    rpc GetLevel1Boundaries (BoundariesRequest) returns (Level1BoundariesResponse);
+    rpc GetLevel2Boundaries (BoundariesRequest) returns (Level2BoundariesResponse);
+}
+
+// python -m grpc_tools.protoc -I example/protobufs/ --dart_out=grpc:example/kenya_boundaries/ --python_out=example/kenya_boundaries/ --grpc_python_out=example/kenya_boundaries/ example/protobufs/kenya_wards.proto
