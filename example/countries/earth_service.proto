@@ -1,0 +1,35 @@
+// earth_service.proto
+
+syntax = "proto3";
+
+package countries;
+import "geometry.proto";
+
+service EarthService {
+    rpc GetAllCountries(GetAllCountriesRequest) returns (Countries);
+    rpc SearchCountries(SearchCountriesRequest) returns (Countries);
+    rpc GetCountriesInBoundary(GetCountriesInBoundaryRequest) returns (Countries);
+}
+
+message Country {
+    string code = 1;
+    string name = 2;
+    Geometry geometry = 3;
+    string type = 4;
+}
+
+message Countries {
+    repeated Country countries = 1;
+}
+
+message GetAllCountriesRequest {
+    string message = 1;
+}
+
+message GetCountriesInBoundaryRequest {
+    Geometry boundary = 1;
+}
+
+message SearchCountriesRequest {
+    string keyword = 1;
+}
