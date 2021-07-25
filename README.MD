@@ -1,6 +1,15 @@
 # An opinionated technique of transfering shapely(GEOS based) geometries through gRPC in python
 
-This package attempts a go at serialization/deserialization of geos-based geometries(shapely primitives) through gRPC in an efficient manner.
+In gRPC, the client and the server communicate through a strict schema defined in a .proto(protobuf format).
+The client and the server send each other messages, which are what the blueprints which determine the fields that the generated classes will have.
+
+gRPC has support for many of the primitives we use in programming e.g strings, integers, booleans, map<k,v>,enums whic you can use directly. 
+
+The challenge with geospatial data is it that it comes in various formats(Points,Linestring,Polygon, MultiGeometries) which are obviously not supported in gRPC.
+
+This package attempts to have a go at transmission of geos-based geometries(shapely primitives) through gRPC in an efficient* manner through creating creating custom serializers and deserializers which convert from Shapely geometries to protobuf(Generated classes) and back. 
+
+> The reason I say efficient is I once made a wkt server, but the performance wasn't good in transferring large geometries.
 
 ## Countries Example
 Let's say you want to create a gRPC web service where 
@@ -24,12 +33,13 @@ service EarthService {
 message Country {
     string code = 1;
     string name = 2;
-    // we can use wkt here, but large string messages is anti-grpc
+    // we can use wkt here, but grpc prefers small-repeated messages
     geometry.Geometry geometry = 3;
     string type = 4;
 }
 
 message Countries {
+    // this maps to a list
     repeated Country countries = 1;
 }
 
@@ -69,9 +79,9 @@ gdf.head()
      alt="Markdown Monster icon"
      style="float: center; margin-right: 10px;" 
 />
-Example of dat in our natural earth dataset
+Subset of countries in our natural earth dataset
 
-From the screenshot above, you see that the data has a mix of polygon and multipolygons but that should not be a problem for us when using this service. We have an abstraction of the BaseGeometry in our protobuf which can be transferred everywhere.
+From the screenshot above, you see that the data has a mix of polygon and multipolygons but that should not be a problem for us when using this service. We have a `Geometry` message which can transmit store data about any shapely Geometry type.
 
 
 ### Implementing the gRPC Earth Service
@@ -87,6 +97,7 @@ python -m grpc_tools.protoc -I example/countries/ --python_out=example/countries
 
 ```python
 # server.py
+# This is how to implement a server that serves the EarthService we created in our earth_service.proto
 from earth_service_pb2_grpc import EarthServiceServicer
 from earth_service_pb2 import Countries,Country
 import geopandas as gpd
@@ -152,6 +163,8 @@ enum Type {
 ```
 To serialize any shapely [BaseGeometry](https://shapely.readthedocs.io/en/stable/manual.html) into protobuf, simply create an instance of ShapelyGeometrySerializer and call .serialize(geometry: BaseGeometry) and return that object to the grpc service handler for transmission to the client/server. Since all shapely primitives are generated from BaseGeometry, any type can be serialized and deserialized.
 
+Once generated, copy the file [serializers.py](shapely_grpc_io/serializers.py) to the same folder as the generated files exist.
+
 ```python
 # import the ShapelyGeometrySerializer from this package
 from serializers import ShapelyGeometrySerializer
@@ -197,6 +210,7 @@ import os
 
 def _serve(port):
     server = grpc.server(futures.ThreadPoolExecutor())
+    # Download the natural earth dataset and inject into EarthService
     filename = 'ne_110m_admin_0_countries.zip'
     if not os.path.exists(filename):
         import wget
@@ -322,6 +336,10 @@ The purpose of this example is to show how to send shapely geometries to the ser
 
 For this example, I created a boundary that spans Middle-East and the horn of Africa.
 
+<img src="example/screenshots/aoi.png"
+     alt="Markdown Monster icon"
+     style="float: center; margin-right: 10px;" 
+/>
 
 
 ```python
@@ -357,11 +375,11 @@ The result is as follows
      alt="Markdown Monster icon"
 />
 
-That's all for this example. If you want to play along with this I've created a notebook [client example](example/countries/client.ipynb) which you can use to experiment with.
+That's all for this example. If you want to play along with these examples, I've created a notebook [client example](example/countries/client.ipynb) which you can use to experiment with.
 
 
 
-I'd like to thank https://github.com/malithd and 52North for creating the original message format implementation. I was so shocked to find how a simple recursion and message format can store a Geospatial Data format of any kind. 
+I'd like to thank https://github.com/malithd and [52North](https://github.com/52North/) for creating the original message format definition. I was so shocked to find how a simple recursion and message format can store a Geospatial Data format of any kind.(AFAIK)
 
 ## Challenges
 
