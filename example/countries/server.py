@@ -11,7 +11,7 @@ class EarthService(EarthServiceServicer):
     def __init__(self, countries_fp) -> None:
         gdf = gpd.read_file(countries_fp)
         self.gdf = gdf[["TYPE", "ADMIN", "geometry", "ADM0_A3"]]
-        self.gdf = gpd.read_file(countries_fp)
+        self.gdf['name'] = self.gdf['ADMIN'].apply(lambda x: x.lower())
 
     def GetAllCountries(self, request, context):
         logging.info(f"GetAllCountries {request}")
@@ -20,7 +20,7 @@ class EarthService(EarthServiceServicer):
     def SearchCountries(self, request, context):
         logging.info(f"SearchCountries {request}")
         filter = request.keyword
-        subset = self.gdf.loc[self.gdf["ADMIN"].str.contains(filter)]
+        subset = self.gdf.loc[self.gdf["name"].str.contains(filter)]
         return rows_to_countries(subset)
 
     def GetCountriesInBoundary(self, request, context):
@@ -65,12 +65,12 @@ import os
 
 def _serve(port):
     server = grpc.server(futures.ThreadPoolExecutor())
-    filename = 'ne_110m_admin_0_countries.zip'
-    if not os.path.exists(filename):
-        import wget
-        url = "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip"
-        # download countries_data set
-        filename = wget.download(url)
+    filename = 'data/ne_110m_admin_0_countries.zip'
+    # if not os.path.exists(filename):
+    #     import wget
+    #     url = "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip"
+    #     # download countries_data set
+    #     filename = wget.download(url)
 
     add_EarthServiceServicer_to_server(
         servicer=EarthService(filename),
@@ -87,4 +87,5 @@ def _serve(port):
 
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
-    _serve(8080)
+    _PORT = os.environ["PORT"]
+    _serve(_PORT)

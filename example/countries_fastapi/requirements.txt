@@ -1,0 +1,7 @@
+fastapi
+gunicorn
+pydantic
+starlette
+uvicorn
+geopandas
+geojson_pydantic
