@@ -3,6 +3,7 @@ from shapely_grpc_io import (
     pb_toshapely_deserializer as to_shapely,
 )
 from shapely.geometry import Point
+from shapely.errors import GEOSException
 from shapely_grpc_io import geometry_pb2 as pb2
 import pytest
 
@@ -27,9 +28,8 @@ def test_point_serialization():
 
 def test_empty_coordinate():
     p = Point()
-
-    with pytest.raises(IndexError):
-        topb.serialize(p)
+    with pytest.raises(GEOSException):
+        serialized = topb.serialize(p)
 
 
 def test_point_3d():
